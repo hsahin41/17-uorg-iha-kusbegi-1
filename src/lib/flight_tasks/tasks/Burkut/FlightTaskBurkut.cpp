@@ -199,8 +199,7 @@ bool FlightTaskBurkut::update()
 			// ************* alınan origin => x,y,z = 0,0,2 ***************
 			_counter = 0.0f;
 			_stage = 4;
-			_position_setpoint = Vector3f(NAN,NAN,NAN);
-			_velocity_setpoint = Vector3f(NAN,NAN,NAN);
+			_yaw_speed = _yaw_speed * 1.2f;
 
 		}
 
@@ -213,11 +212,13 @@ bool FlightTaskBurkut::update()
 		_counter = _counter + _counter_speed;
 
 		_yaw_setpoint = _yaw_speed * _counter * 3.141592653589793f / 180.f;
-		if(_counter >= 370.0f)
+		if(_counter >= 320.0f)
 		{
 		//In ve komut vermeyi kes
 
 			_stage = 5;
+			_position_setpoint = Vector3f(NAN,NAN,NAN);
+			_velocity_setpoint = Vector3f(NAN,NAN,NAN);
 		}
 
 
