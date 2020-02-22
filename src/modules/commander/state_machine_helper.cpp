@@ -282,7 +282,7 @@ main_state_transition(const vehicle_status_s &status, const main_state_t new_mai
 		}
 
 		break;
-
+	case commander_state_s::MAIN_STATE_BURKUT:
 	case commander_state_s::MAIN_STATE_AUTO_LOITER:
 
 		/* need global position estimate */
@@ -588,7 +588,39 @@ bool set_nav_state(vehicle_status_s *status, actuator_armed_s *armed, commander_
 		}
 
 		break;
+	case commander_state_s::MAIN_STATE_BURKUT:
+		/* go into failsafe on a engine failure */
+		if (status->engine_failure) {
+			status->nav_state = vehicle_status_s::NAVIGATION_STATE_AUTO_LANDENGFAIL;
 
+		} else if (is_armed && check_invalid_pos_nav_state(status, old_failsafe, mavlink_log_pub, status_flags, false, true)) {
+			// nothing to do - everything done in check_invalid_pos_nav_state
+		} else if (status->data_link_lost && data_link_loss_act_configured && !landed && is_armed) {
+			/* also go into failsafe if just datalink is lost, and we're actually in air */
+			set_link_loss_nav_state(status, armed, status_flags, internal_state, data_link_loss_act,
+						vehicle_status_s::NAVIGATION_STATE_AUTO_RTGS);
+
+			enable_failsafe(status, old_failsafe, mavlink_log_pub, reason_no_datalink);
+
+		} else if (rc_lost && !data_link_loss_act_configured && is_armed) {
+			/* go into failsafe if RC is lost and datalink loss is not set up and rc loss is not DISABLED */
+			enable_failsafe(status, old_failsafe, mavlink_log_pub, reason_no_rc);
+
+			set_link_loss_nav_state(status, armed, status_flags, internal_state, rc_loss_act,
+						vehicle_status_s::NAVIGATION_STATE_AUTO_RCRECOVER);
+
+		} else if (status->rc_signal_lost) {
+			/* don't bother if RC is lost if datalink is connected */
+
+			/* this mode is ok, we don't need RC for LOITERing */
+			status->nav_state = vehicle_status_s::NAVIGATION_STATE_BURKUT;
+
+		} else {
+			/* everything is perfect */
+			status->nav_state = vehicle_status_s::NAVIGATION_STATE_BURKUT;
+		}
+
+		break;
 	case commander_state_s::MAIN_STATE_ORBIT:
 		if (status->engine_failure) {
 			// failsafe: on engine failure
