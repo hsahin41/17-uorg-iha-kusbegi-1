@@ -64,6 +64,7 @@ list(APPEND flight_tasks_all
 	Failsafe
 	Descend
 	Transition
+	Burkut
 	${flight_tasks_to_add}
 )
 
