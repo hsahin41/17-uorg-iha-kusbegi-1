@@ -30,8 +30,8 @@ void FlightTaskBurkut::_publishVehicleCmdDoLand()
 	// publish the vehicle command
 	_pub_vehicle_command.publish(command);
 
-	_param_mpc_auto_mode.set(_default_mpc_auto_mode);
-	_param_mpc_auto_mode.commit();
+	//_param_mpc_auto_mode.set(_default_mpc_auto_mode);
+	//_param_mpc_auto_mode.commit();
 	updateParams();
 
 }
@@ -61,7 +61,7 @@ bool FlightTaskBurkut::activate(vehicle_local_position_setpoint_s last_setpoint)
 	_origin_yaw = _yaw;
 
 	//yaw speed setted.
-	_yaw_speed = 320;//_param_yaw_speed.get();
+	_yaw_speed = _param_yaw_speed.get();
 
 
 	return ret;
