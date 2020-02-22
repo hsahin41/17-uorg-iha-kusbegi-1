@@ -881,6 +881,10 @@ MulticopterPositionControl::start_flight_task()
 			task_failure = false;
 		}
 	}
+	if (_vehicle_status.nav_state == vehicle_status_s::NAVIGATION_STATE_BURKUT){
+		should_disable_task = false;
+		_flight_tasks.switchTask(FlightTaskIndex::Burkut);
+	}
 
 	if (_vehicle_status.nav_state == vehicle_status_s::NAVIGATION_STATE_ORBIT) {
 		should_disable_task = false;
